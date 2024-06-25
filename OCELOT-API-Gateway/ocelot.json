@@ -9,7 +9,7 @@
           "Port": 7021
         }
       ],
-      "UpstreamPathTemplate": "/api/token?userName={username}&usertype={userType}",
+      "UpstreamPathTemplate": "/api/token?username={userName}&usertype={userType}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
@@ -29,7 +29,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST" ]
+      "UpstreamHttpMethod": [ "GET", "POST","PUT" ]
     }
   ],
   "GlobalConfiguration": {

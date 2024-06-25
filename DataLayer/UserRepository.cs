@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 
 namespace DataLayer
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository 
     {
         private IDbConnection db;
 

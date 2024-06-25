@@ -1,4 +1,5 @@
-﻿using Dapper.Contrib.Extensions;
+﻿using Dapper;
+using Dapper.Contrib.Extensions;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -12,16 +13,16 @@ namespace DataLayer
         {
             this.db = this.createConnection();
         }
-        public User Add(User user)
+        public async Task<User> Add(User user)
         {
             var id = this.db.Insert(user);
             user.Id = (int)id;
             return user;
         }
 
-        public User Delete(int id)
+        public async Task<User> Delete(int id)
         {
-            User? user = this.db.Get<User>(id);
+            User? user = await this.db.GetAsync<User>(id);
             if(user != null)
             {
                 this.db.Delete(new User { Id = id});
@@ -29,20 +30,35 @@ namespace DataLayer
             return user;
         }
 
-        public User Find(int id)
+        public async Task<User> Find(int id)
         {
-            return this.db.Get<User>(id);
+            var sql = "SELECT * FROM patients WHERE Id = @Id;" +
+                "SELECT * FROM appointment WHERE id_patient = @Id";
+            using (var multipleResults = await this.db.QueryMultipleAsync(sql, new { Id = id }))
+            {
+                var patient= multipleResults.Read<User>().SingleOrDefault();
+                var appointments = multipleResults.Read<Appointment>().ToList();
+                if(patient != null) {
+                    if(appointments != null)
+                    {
+                        patient.Appointments=appointments;
+                    }                    
+                }
+                return patient;
+            }                
         }
 
         public List<User> GetAll()
         {
-            return this.db.GetAll<User>().ToList();
+            var users  = this.db.GetAll<User>();
+            return users.ToList();
         }
 
-        public User Update(User user)
+        public async Task<User> Update(User user)
         {
-            this.db.Update(user);
-            return user;
+            this.db.UpdateAsync(user);
+
+            return await this.Find(user.Id);
         }
         private IDbConnection createConnection()
         {
